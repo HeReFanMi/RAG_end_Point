@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  flask-app:
+    build: .
+    container_name: flask-app
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql+pg8000://postgres:mysecretpassword@postgres-container:5432/postgres
+    depends_on:
+      - postgres
+    networks:
+      - shared-network
+
+  postgres:
+    image: postgres:13
+    container_name: postgres-container
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: chunk_embeddings
+    ports:
+      - "5433:5432"  # If you're using 5433 for this service
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    driver: bridge

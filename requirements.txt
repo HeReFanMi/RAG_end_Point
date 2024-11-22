@@ -1,0 +1,9 @@
+flask[async]
+flask_sqlalchemy
+sqlalchemy
+asyncpg
+torch
+transformers
+scipy
+uvicorn
+asgiref
