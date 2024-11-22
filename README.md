@@ -29,8 +29,3 @@ Build the Docker image and start the containers
 3.Access the Application
    ```bash
       http://localhost:5000
-
-
-
-
-
