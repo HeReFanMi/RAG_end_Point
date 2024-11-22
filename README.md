@@ -28,4 +28,4 @@ Build the Docker image and start the containers
    docker-compose up
 3.Access the Application
    ```bash
-http://localhost:5000
+   http://localhost:5000
