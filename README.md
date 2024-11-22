@@ -72,10 +72,3 @@ Ensure that the `ragystem_shared-network` Docker network is used for communicati
 docker network inspect ragystem_shared-network
 ```
 
-## Contributing
-1. Fork the repository.
-2. Create a feature branch.
-3. Commit your changes and open a pull request.
-
-## License
-This project is licensed under the MIT License.
