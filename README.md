@@ -26,5 +26,11 @@ Build the Docker image and start the containers
    ```bash
    docker build -t ragystem-flask-app .
    docker-compose up
+3.Access the Application
+   ```bash
+      http://localhost:5000
+
+
+
 
 
