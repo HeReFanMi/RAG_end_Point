@@ -19,3 +19,12 @@ The RAG (Retrieval-Augmented Generation) system is a core component of the HereF
    ```bash
    git clone https://github.com/HeReFanMi/Rag.git
    cd Rag
+
+
+2. Build and Run the Docker Container
+Build the Docker image and start the containers
+   ```bash
+   docker build -t ragystem-flask-app .
+   docker-compose up
+
+
