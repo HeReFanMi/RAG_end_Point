@@ -2,26 +2,34 @@ version: '3.8'
 
 services:
   flask-app:
-    build: .
+    build:
+      context: ./app
+      dockerfile: Dockerfile
     container_name: flask-app
     ports:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
-      - DATABASE_URL=postgresql+pg8000://postgres:mysecretpassword@postgres-container:5432/postgres
+      - DATABASE_URL=postgresql+asyncpg://postgres:mysecretpassword@postgres-container:5432/postgres
+
     depends_on:
       - postgres
     networks:
       - shared-network
 
   postgres:
-    image: postgres:13
+    build:
+      context: ./db
+      dockerfile: Dockerfile
     container_name: postgres-container
     environment:
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: chunk_embeddings
+      POSTGRES_DB: postgres
     ports:
-      - "5433:5432"  # If you're using 5433 for this service
+      - "5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
     networks:
       - shared-network
 
