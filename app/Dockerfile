@@ -1,21 +1,18 @@
-# Use an official Python runtime as a parent image
-FROM python:3.8-slim
+FROM nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu20.04
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the current directory contents into the container
+RUN apt-get update && apt-get install -y python3 python3-pip
+
 COPY . /app
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Expose the port the app will run on
+RUN pip3 install --no-cache-dir flask torch torchvision torchaudio
+
 EXPOSE 5000
 
-# Define environment variables
 ENV FLASK_APP=app.py
 ENV FLASK_RUN_HOST=0.0.0.0
 
-# Run the Flask app when the container starts
 CMD ["flask", "run"]

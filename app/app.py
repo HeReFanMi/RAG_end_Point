@@ -12,6 +12,7 @@ from sqlalchemy.dialects.postgresql import ARRAY  # Import ARRAY
 from scipy.spatial.distance import cdist
 from asgiref.wsgi import WsgiToAsgi
 import requests
+from sentence_transformers import SentenceTransformer  # Import SentenceTransformer for embeddings
 
 if __name__ == "__main__":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
@@ -28,22 +29,18 @@ class ChunkEmbedding(Base):
     __tablename__ = 'chunk_embeddings'
     id = Column(Integer, primary_key=True)
     chunk = Column(String)
-    embedding = Column(ARRAY(Float))  # Using ARRAY from postgresql dialect
+    embedding = Column(ARRAY(Float))  
 
-tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-model = BertModel.from_pretrained('bert-base-uncased')
+embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+embedding_model = embedding_model.to(device)  
 
 engine = create_async_engine('postgresql+asyncpg://postgres:mysecretpassword@postgres-container:5432/postgres', echo=True)
 
-
-
 def compute_embedding(text):
-    inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=512)
-    with torch.no_grad():
-        outputs = model(**inputs)
-        cls_embedding = outputs.last_hidden_state[:, 0, :].squeeze().numpy()
-    return cls_embedding
-
+    embedding = embedding_model.encode(text, convert_to_tensor=True)  
+    return embedding.cpu().numpy()  
 async def fetch_all_embeddings():
     async with AsyncSession(engine) as session:
         query = select(ChunkEmbedding)
@@ -51,9 +48,9 @@ async def fetch_all_embeddings():
         rows = result.scalars().all()
         
         if rows:
-            print(f"Fetched {len(rows)} rows from the database.")  # Debug print
-            print(f"Sample chunk: {rows[0].chunk}")  # Print the first chunk for verification
-            print(f"Sample embedding: {rows[0].embedding[:5]}")  # Print first 5 values of the first embedding for verification
+            print(f"Fetched {len(rows)} rows from the database.") 
+            print(f"Sample chunk: {rows[0].chunk}")  
+            print(f"Sample embedding: {rows[0].embedding[:5]}") 
     return rows
 
 async def find_similar_chunks(prompt, top_n=5):
@@ -109,5 +106,5 @@ if __name__ == '__main__':
     from asgiref.wsgi import WsgiToAsgi
     app_asgi = WsgiToAsgi(app)
     import uvicorn
-    print("App is running on http://0.0.0.0:5000 🚀")  # Print message to indicate server is running
+    print("App is running on http://0.0.0.0:5000 🚀")  
     uvicorn.run(app_asgi, host="0.0.0.0", port=5000)
